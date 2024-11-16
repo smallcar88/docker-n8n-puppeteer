@@ -5,6 +5,10 @@ volumes:
   n8n_storage:
 
 services:
+  doc_converter:
+    build: ./md2docx
+    ports:
+      - 5042:5000
   postgres:
     image: postgres:17
     restart: always
@@ -22,7 +26,6 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
-
   browserless:
     image: ghcr.io/browserless/chromium
     ports:
@@ -60,6 +63,7 @@ services:
     links:
       - postgres
       - browserless
+      - doc_converter
     volumes:
       - n8n_storage:/home/node/.n8n
       - ./certs:/opt/custom-certificates
@@ -70,3 +74,6 @@ services:
         condition: service_started
       postgres:
         condition: service_healthy
+    depends_on:
+      doc_converter:
+        condition: service_started
