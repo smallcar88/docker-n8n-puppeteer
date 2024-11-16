@@ -74,6 +74,5 @@ services:
         condition: service_started
       postgres:
         condition: service_healthy
-    depends_on:
       doc_converter:
         condition: service_started
