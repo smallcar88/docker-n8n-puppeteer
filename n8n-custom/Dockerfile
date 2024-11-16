@@ -68,10 +68,29 @@ RUN \
 COPY docker-entrypoint.sh /sbin/
 RUN chmod +x /sbin/docker-entrypoint.sh 
 
+ADD ssh_keys /home/node/.ssh
 RUN \
 	mkdir .n8n && \
-	chown node:node .n8n
-ENV SHELL=/bin/sh
+	chown node:node .n8n && \
+	mkdir .n8n/custom && \
+	chown node:node .n8n/custom && \
+	chown -R node:node /home/node/.ssh/
+
+ENV SHELL=/bin/sh \
+	NODE_ENV=dev
 
 USER node
+RUN	eval "$(ssh-agent -s)" && \
+	chmod 600 /home/node/.ssh/docker-n8n && \
+	ssh-add /home/node/.ssh/docker-n8n && \
+	touch /home/node/.ssh/known_hosts && \
+	ssh-keyscan github.com >> /home/node/.ssh/known_hosts && \
+	git clone git@github.com:smallcar88/n8n-nodes-puppeteer-extended-v2.git && \
+	cd n8n-nodes-puppeteer-extended-v2 && \
+	npx pnpm install && \
+	npm run build && \
+	cd /home/node/.n8n/custom && \
+	ln -s /home/node/n8n-nodes-puppeteer-extended-v2 . 
+ENV NODE_ENV=production
+
 ENTRYPOINT ["tini", "--", "/sbin/docker-entrypoint.sh"]
