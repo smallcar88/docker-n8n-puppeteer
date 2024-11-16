@@ -35,19 +35,36 @@ services:
     image: n8n-puppeteer:latest
     restart: always
     environment:
+      - N8N_HOST=${SUBDOMAIN}.${DOMAIN_NAME}:5443
+      - N8N_PORT=443
+      - N8N_PROTOCOL=https
+      - N8N_SECURE_COOKIE=false
       - DB_TYPE=postgresdb
       - DB_POSTGRESDB_HOST=postgres
       - DB_POSTGRESDB_PORT=5432
       - DB_POSTGRESDB_DATABASE=${POSTGRES_DB}
       - DB_POSTGRESDB_USER=${POSTGRES_NON_ROOT_USER}
       - DB_POSTGRESDB_PASSWORD=${POSTGRES_NON_ROOT_PASSWORD}
+      - GENERIC_TIMEZONE=${GENERIC_TIMEZONE}
+      - TZ=${GENERIC_TIMEZONE}
+      - N8N_SSL_CERT=/opt/custom-certificates/_wildcard.martins.localhost.pem
+      - N8N_SSL_KEY=/opt/custom-certificates/_wildcard.martins.localhost-key.pem
+      - NODE_FUNCTION_ALLOW_BUILTIN=*
+      - NODE_FUNCTION_ALLOW_EXTERNAL=axios,moment,puppeteer,unified,remark-parse,remark-docx,file-saver
+# Enable below for debugging
+#      - N8N_LOG_LEVEL=debug
+#      - N8N_LOG_OUTPUT=console
     ports:
-      - 5678:5678
+      # - 5678:5678
+      - 5443:443
     links:
       - postgres
       - browserless
     volumes:
       - n8n_storage:/home/node/.n8n
+      - ./certs:/opt/custom-certificates
+      - ./ssh_keys:/home/node/.ssh
+      - ./shared_files:/home/node/shared
     depends_on:
       browserless:
         condition: service_started

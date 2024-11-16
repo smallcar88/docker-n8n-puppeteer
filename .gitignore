@@ -1,1 +1,4 @@
 .env
+certs
+n8n-custom/ssh_keys
+shared_files
