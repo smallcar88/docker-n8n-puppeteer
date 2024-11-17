@@ -5,7 +5,7 @@ volumes:
   n8n_storage:
 
 services:
-  doc_converter:
+  doc-converter:
     build: ./md2docx
     ports:
       - 5042:5000
@@ -63,7 +63,7 @@ services:
     links:
       - postgres
       - browserless
-      - doc_converter
+      - doc-converter
     volumes:
       - n8n_storage:/home/node/.n8n
       - ./certs:/opt/custom-certificates
@@ -74,5 +74,5 @@ services:
         condition: service_started
       postgres:
         condition: service_healthy
-      doc_converter:
+      doc-converter:
         condition: service_started

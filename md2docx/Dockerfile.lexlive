@@ -1,0 +1,26 @@
+FROM sumankhanal/texlive-2024:small
+
+RUN set -xe \
+    add-apt-repository universe && \
+    apt-get update -y
+RUN apt-get install python3 pipx -y && \
+    apt-get clean && \
+    pipx ensurepath && \
+    rm -rf /var/lib/apt/lists/*
+# RUN python3 -m venv ~/.venv/flask &&  /bin/bash -c "source ~/.venv/flask/bin/activate" 
+
+# Set the working directory
+WORKDIR /app
+
+# Copy requirements and install dependencies
+COPY app/requirements.txt .
+# RUN conda install -c conda-forge pandoc
+RUN pipx install flask && pipx inject flask pandoc
+
+# Copy the application code
+COPY app/ .
+
+EXPOSE 5000
+
+# Run the application
+CMD ["python", "app.py"]
